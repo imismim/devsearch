@@ -252,6 +252,7 @@ img {
 
   .hero-section__search > .form input.input--text,
   .hero-section__search > .form input {
+    
     min-width: 100%;
     width: 100%;
   }
