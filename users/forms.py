@@ -1,6 +1,8 @@
-from django.forms import forms
+from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+from .models import Profile
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -33,3 +35,21 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update(
             {'class': 'input input--password', 'type': 'password', 'name': 'password',
              'id': 'formInput#passowrd', 'placeholder': '••••••••'})
+
+
+class ProfileForm(ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['name', 'email', 'username', 'location', 'short_intro', 'bio', 'profile_image',
+                  'social_github', 'social_instagram', 'social_youtube', 'social_linkedin', 'social_website']
+
+        labels = {}
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+
+        for key in self.fields.keys():
+            self.fields[key].widget.attrs.update(
+                {'class': 'input input--text', 'type': 'text', 'name': 'text',
+                 'id': 'formInput#text'})
+

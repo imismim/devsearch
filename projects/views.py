@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Project
 from .forms import ProjectForm
 # Create your views here.
+
 def projects(request):
     projects = Project.objects.all()
     return render(request, "projects/projects.html", {"projects": projects})
@@ -14,12 +15,15 @@ def project(request, id):
 
 @login_required(login_url='login')
 def createProject(request):
+    profile = request.user.profile
     form = ProjectForm()
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('projects')
+            project = form.save(commit=False)
+            project.owner = profile
+            project.save()
+            return redirect('account')
         
     return render(request, "projects/project-form.html", {"form": form})
 
@@ -32,7 +36,7 @@ def updateProject(request, id):
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             form.save()
-            return redirect('projects')
+            return redirect('account')
         
     return render(request, "projects/project-form.html", {"form": form})
 
@@ -44,4 +48,4 @@ def deleteProject(request, id):
         return redirect('projects')
     
     context = {'object': project}
-    return render(request, 'projects/delete-template.html', context)
+    return render(request, 'projects/delete-project.html', context)

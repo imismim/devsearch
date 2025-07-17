@@ -1,0 +1,27 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<main class="formPage my-xl">
+    <div class="content-box">
+        <div class="formWrapper">
+            <a class="backButton" href="{% url 'account' %}"><i class="fa-solid fa-arrow-left"></i></a>
+            <br>
+
+            <form class="form" method="POST">
+                {% csrf_token %}
+                <div class="form__field">
+                    <label for="formInput#text">Name: </label>
+                    <input class="input input--text" id="formInput#text" type="text" name="name" value="{{name}}"
+                        placeholder="Enter skill" />
+                </div>
+
+                <div class="form__field">
+                    <label for="formInput#text">Description: </label>
+                    <textarea class="input input--text" id="formInput#text" type="text" name="description"
+                        placeholder="Enter description" rows="5">{{description}}</textarea>
+                <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}
