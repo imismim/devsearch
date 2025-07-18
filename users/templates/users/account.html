@@ -76,7 +76,7 @@
                         <td class="settings__tableActions">
                             <a class="tag tag--pill tag--main settings__btn" href="{% url 'edit-skill' skill.id %}"><i class="fa-solid fa-edit"
                                     style="margin-right: 5px;"></i>Edit</a>
-                            <a class="tag tag--pill tag--main settings__btn" href="{% url 'delete-skill' skill.id %}"><i
+                            <a class="tag tag--pill tag--main settings__btn" href="{% url 'delete-skill' skill.id %}?next=/account"><i
                                     class="fa-solid fa-circle-xmark" style="margin-right: 5px;"></i>Delete</a>
                         </td>
                     </tr>
@@ -103,7 +103,7 @@
                         <td class="settings__tableActions">
                             <a class="tag tag--pill tag--main settings__btn" href="{% url 'update-project' project.id %}"><i class="fa-solid fa-edit"
                                     style="margin-right: 5px;"></i>Edit</a>
-                            <a class="tag tag--pill tag--main settings__btn" href="{% url 'delete-project' project.id %}"><i
+                            <a class="tag tag--pill tag--main settings__btn" href="{% url 'delete-project' project.id %}?next=/account"><i
                                     class="fa-solid fa-circle-xmark" style="margin-right: 5px;"></i>Delete</a>
                         </td>
                     </tr>

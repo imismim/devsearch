@@ -11,6 +11,9 @@
                 {% for field in form %}
                 <label for="formInput#text">{{field.label}}</label>
                 {{field}}
+                {% if field.errors %}
+                <p style="color: red;">{{ field.errors|first }}</p>
+                {% endif %}
                 {% endfor %}
                 <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
             </form>

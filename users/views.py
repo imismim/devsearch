@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Profile, Skill
-from .forms import CustomUserCreationForm, ProfileForm
+from .forms import CustomUserCreationForm, ProfileForm, SkillForm
 
 # Create your views here.
 
@@ -109,31 +109,33 @@ def editAccount(request):
 
 @login_required(login_url='login')
 def createSkill(request):
+    profile = request.user.profile
+    form = SkillForm()
     if request.method == 'POST':
-        profile = request.user.profile
-        nameSkill = request.POST.get('name')
-        descriptionSkill = request.POST.get('description')
-        Skill.objects.create(
-            owner=profile,
-            name=nameSkill,
-            description=descriptionSkill
-        )
+        form = SkillForm(request.POST)
+        if form.is_valid():
+            skill = form.save(commit=False)
+            skill.owner = profile
+            skill.save()
+            messages.success(request, 'Skill was created successfully!')
         return redirect('account')
 
-    context = {'name': '', 'description': ''}
+    context = {'form': form}
     return render(request, 'users/create-skill.html', context)
 
 
 @login_required(login_url='login')
 def editSkill(request, id):
     skill = request.user.profile.skill_set.get(id=id)
+    form = SkillForm(instance=skill)
     if request.method == 'POST':
-        skill.name = request.POST.get('name')
-        skill.description = request.POST.get('description')
-        skill.save()
+        form = SkillForm(request.POST, instance=skill)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Skill was update successfully!')
         return redirect('account')
 
-    context = {'name': skill.name, 'description': skill.description}
+    context = {'form': form}
     return render(request, 'users/create-skill.html', context)
 
 
@@ -142,6 +144,7 @@ def deleteSkill(request, id):
     skill = request.user.profile.skill_set.get(id=id)
     if request.method == 'POST':
         skill.delete()
+        messages.success(request, 'Skill was deleted successfully!')
         return redirect('account')
 
     context = {'skill': skill}

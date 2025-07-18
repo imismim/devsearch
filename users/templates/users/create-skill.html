@@ -9,16 +9,12 @@
 
             <form class="form" method="POST">
                 {% csrf_token %}
+                {% for field in form %}
                 <div class="form__field">
-                    <label for="formInput#text">Name: </label>
-                    <input class="input input--text" id="formInput#text" type="text" name="name" value="{{name}}"
-                        placeholder="Enter skill" />
+                    <label for="formInput#text">{{field.name|title}}:</label>
+                    {{field}}
                 </div>
-
-                <div class="form__field">
-                    <label for="formInput#text">Description: </label>
-                    <textarea class="input input--text" id="formInput#text" type="text" name="description"
-                        placeholder="Enter description" rows="5">{{description}}</textarea>
+                {% endfor%}
                 <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
             </form>
         </div>

@@ -7,11 +7,13 @@ from .forms import ProjectForm
 
 def projects(request):
     projects = Project.objects.all()
-    return render(request, "projects/projects.html", {"projects": projects})
+    idUser = request.user.profile.id if request.user.is_authenticated else None
+    return render(request, "projects/projects.html", {"projects": projects, 'idUser': idUser})
 
 def project(request, id):
+    idUser = request.user.profile.id if request.user.is_authenticated else None
     project = Project.objects.get(id=id)
-    return render(request, "projects/single-project.html", {"project": project})
+    return render(request, "projects/single-project.html", {"project": project, 'idUser': idUser})
 
 @login_required(login_url='login')
 def createProject(request):
@@ -29,7 +31,8 @@ def createProject(request):
 
 @login_required(login_url='login')
 def updateProject(request, id):
-    project = Project.objects.get(id=id)
+    profile = request.user.profile
+    project = profile.project_set.get(id=id)
     form = ProjectForm(instance=project)
     
     if request.method == 'POST':
@@ -42,7 +45,8 @@ def updateProject(request, id):
 
 @login_required(login_url='login')
 def deleteProject(request, id):
-    project = Project.objects.get(id=id) 
+    profile = request.user.profile
+    project = profile.project_set.get(id=id) 
     if request.method == 'POST':
         project.delete()
         return redirect('projects')

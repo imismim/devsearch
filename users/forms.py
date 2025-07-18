@@ -1,8 +1,9 @@
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
-from .models import Profile
+from .models import Profile, Skill
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -45,6 +46,20 @@ class ProfileForm(ModelForm):
 
         labels = {}
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+
+        qs = Profile.objects
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        qs = qs.filter(username=username)
+
+        if qs.exists():
+            raise ValidationError('This username exist!')
+
+        return username
+
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
 
@@ -53,3 +68,17 @@ class ProfileForm(ModelForm):
                 {'class': 'input input--text', 'type': 'text', 'name': 'text',
                  'id': 'formInput#text'})
 
+
+class SkillForm(ModelForm):
+    class Meta:
+        model = Skill
+        fields = '__all__'
+        exclude = ['owner']
+
+    def __init__(self, *args, **kwargs):
+        super(SkillForm, self).__init__(*args, **kwargs)
+
+        self.fields['name'].widget.attrs.update({'class': 'input input--text', 'type': 'text', 'name': 'text',
+                 'id': 'formInput#text', 'placeholder':'Enter skill', 'valued': self.fields['name']})
+        self.fields['description'].widget.attrs.update({'class': 'input input--text', 'type': 'text', 'name': 'text',
+                 'id': 'formInput#text', 'placeholder': 'Enter description',})
