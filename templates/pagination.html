@@ -7,7 +7,7 @@
 
             {% for page in custom_range %}
 
-            {% if page == projects.number %}
+            {% if page == queryset.number %}
             <li><a href="?page={{page}}" class="btn btn--sub">0{{page}}</a></li>
             {% else %}
             <li><a href="?page={{page}}" class="btn">0{{page}}</a></li>

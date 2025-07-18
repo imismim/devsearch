@@ -4,7 +4,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from .models import Project
 from .forms import ProjectForm
-from .utils import searchProjects, paginationProjects
+from .utils import searchProjects, paginateProjects
 # Create your views here.
 
 
@@ -12,7 +12,7 @@ def projects(request):
     projects, search_query = searchProjects(request)
     idUser = request.user.profile.id if request.user.is_authenticated else None
     
-    custom_range, projects = paginationProjects(request, projects, 3)
+    custom_range, projects = paginateProjects(request, projects, 3)
     context = {"projects": projects, 'idUser': idUser, 'search_query': search_query, 'custom_range': custom_range}
     return render(request, "projects/projects.html", context)
 

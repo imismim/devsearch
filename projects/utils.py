@@ -15,7 +15,7 @@ def searchProjects(request):
                                       Q(tags__in=tags))
     return projects, search_query
 
-def paginationProjects(request, projects, result):
+def paginateProjects(request, projects, result):
     page = request.GET.get('page')
     paginator = Paginator(projects, result)
     
