@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-from .models import Project
-from .forms import ProjectForm
+from .models import Project, Review
+from .forms import ProjectForm, ReviewForm
 from .utils import searchProjects, paginateProjects
 # Create your views here.
 
@@ -20,7 +20,18 @@ def projects(request):
 def project(request, id):
     idUser = request.user.profile.id if request.user.is_authenticated else None
     project = Project.objects.get(id=id)
-    return render(request, "projects/single-project.html", {"project": project, 'idUser': idUser})
+    
+    
+    form = ReviewForm()
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.project = project
+            review.owner = request.user.profile
+            review.save()
+    context = {"project": project, 'idUser': idUser, 'form': form}
+    return render(request, "projects/single-project.html", context)
 
 
 @login_required(login_url='login')
@@ -33,6 +44,7 @@ def createProject(request):
             project = form.save(commit=False)
             project.owner = profile
             project.save()
+            form.save_m2m()
             return redirect('account')
 
     return render(request, "projects/project-form.html", {"form": form})
@@ -61,5 +73,11 @@ def deleteProject(request, id):
         project.delete()
         return redirect('projects')
 
-    context = {'object': project}
-    return render(request, 'projects/delete-project.html', context)
+    context = {'nameObj': project.title, 'typeObj': 'project'}
+    return render(request, 'delete-template.html', context)
+
+
+def deleteComment(request, id):
+    comment = Review.objects.get(id=id)
+    context = {'nameObj': comment.body[:40] + '...', 'typeObj': 'comment'}
+    return render(request, 'delete-template.html', context)
