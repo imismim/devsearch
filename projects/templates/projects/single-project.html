@@ -32,52 +32,63 @@
           class="singleProject__developer">By {{project.owner.name}}</a>
         <h2 class="singleProject__title">{{project.title}}</h2>
         <h3 class="singleProject__subtitle">About the Project</h3>
-        <div class="singleProject__info">
-          {{project.description}}
-        </div>
+        <div class="singleProject__info">{{project.description}}</div>
 
         <div class="comments">
-          <div class="comments">
-            <h3 class="singleProject__subtitle">Feedback</h3>
-            <h5 class="project--rating">
-              {{project.vote_ratio}}% Postitive Feedback ({{project.vote_total}}
-              Vote{{project.vote_total|pluralize:"s"}})
-            </h5>
+          <h3 class="singleProject__subtitle">Feedback</h3>
+          <h5 class="project--rating">
+            {{project.vote_ratio}}% Postitive Feedback ({{project.vote_total}}
+            Vote{{project.vote_total|pluralize:"s"}})
+          </h5>
 
-            {% if idUser != project.owner.id %}
-            <form class="form" action="{% url 'project' project.id %}" method="POST">
-              {% csrf_token %}
-              {% for field in form %}
-              <div class="form__field">
-                <label for="formInput#textarea">field.label: </label>
-                {{field}}
-              </div>
-              {% endfor %}
-              <input class="btn btn--sub btn--lg" type="submit" value="Comments" />
-            </form>
-            {% endif%}
+          {% if not idUser %}
+          <a href="{% url 'login' %}?next={{request.path}}">To leave a comment you must be logged in.</a>
+          {% elif idUser == project.owner.id %}
+          <p>You cannot leave a comment under your project</p>
+          {% elif idUser in project.reviewers %}
+          <p>You have already rated and commented on this project</p>
+          {% else %}
+          <form class="form" action="{% url 'project' project.id %}" method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form__field">
+              <label for="formInput#textarea">field.label: </label>
+              {{field}}
+            </div>
+            {% endfor %}
+            <input class="btn btn--sub btn--lg" type="submit" value="Comments" />
+          </form>
+          {% endif%}
 
-            {% for review in project.review_set.all %}
-            <tr>
-              <td>
-                <a href="{% url 'user-profile' review.owner.id %}">
-                  <img class="avatar avatar--md" src="{{review.owner.profile_image.url}}" alt="user" />
-                </a>
-          </td>
-          <td>
+          {% for review in project.review_set.all %}
+          <div class="commentList">
+            <div class="comment">
+              <tr>
+                <td>
+                  <a href="{% url 'user-profile' review.owner.id %}">
+                    <img class="avatar avatar--md" src="{{review.owner.profile_image.url}}" alt="user" />
+                  </a>
+                </td>
+                <div class="comment__details">
+                  <a href="{% url 'user-profile' review.owner.id %}" class="comment__author">{{review.owner.name}}</a>
+                  <p class="comment__info">{{review.body|linebreaksbr}}</p>
+                </div>
+                </td>
+                {% if review.owner.id == idUser%}
+                <td class="settings__tableActions">
+                  <a class="tag tag--pill tag--main settings__btn"
+                    href="{% url 'delete-comment' review.id %}?next=/account"><i class="fa-solid fa-circle-xmark"
+                      style="margin-right: 5px;"></i>Delete</a>
+                </td>
+                {% endif %}
+              </tr>
+            </div>
 
-          </td>
-          <td class="settings__tableActions">
-            <a class="tag tag--pill tag--main settings__btn"
-              href="{% url 'delete-project' project.id %}?next=/account"><i class="fa-solid fa-circle-xmark"
-                style="margin-right: 5px;"></i>Delete</a>
-          </td>
-          </tr>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
-  </div>
   </div>
 </main>
 {% endblock content %}

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.db.models import Q
 
@@ -10,7 +11,7 @@ from .forms import CustomUserCreationForm, ProfileForm, SkillForm
 from .utils import searchProfiles, paginateProfiles
 # Create your views here.
 
-
+@never_cache
 def loginUser(request):
     page = 'login'
 
@@ -30,7 +31,7 @@ def loginUser(request):
 
         if user is not None:
             login(request, user)
-            return redirect('profiles')
+            return redirect(request.GET['next'] if 'next' in request.GET else 'profiles')
         else:
             messages.error(request, 'Username OR Password is not correct')
 
@@ -41,7 +42,7 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
-
+@never_cache
 def registerUser(request):
     page = 'register'
     form = CustomUserCreationForm()

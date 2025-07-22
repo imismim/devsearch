@@ -19,8 +19,8 @@ def projects(request):
 
 def project(request, id):
     idUser = request.user.profile.id if request.user.is_authenticated else None
+
     project = Project.objects.get(id=id)
-    
     
     form = ReviewForm()
     if request.method == 'POST':
@@ -30,6 +30,8 @@ def project(request, id):
             review.project = project
             review.owner = request.user.profile
             review.save()
+            project.getVoteCount
+            return redirect('project', id=project.id)
     context = {"project": project, 'idUser': idUser, 'form': form}
     return render(request, "projects/single-project.html", context)
 
@@ -71,13 +73,21 @@ def deleteProject(request, id):
     project = profile.project_set.get(id=id)
     if request.method == 'POST':
         project.delete()
-        return redirect('projects')
+        return redirect('account')
 
     context = {'nameObj': project.title, 'typeObj': 'project'}
     return render(request, 'delete-template.html', context)
 
-
+@login_required(login_url='login')
 def deleteComment(request, id):
     comment = Review.objects.get(id=id)
+    if request.method == 'POST':
+        form = ReviewForm()
+        project = comment.project
+        comment.delete()
+        project.getVoteCount
+
+        return redirect('project', id=project.id)
+    
     context = {'nameObj': comment.body[:40] + '...', 'typeObj': 'comment'}
     return render(request, 'delete-template.html', context)
