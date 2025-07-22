@@ -1,0 +1,28 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<main class="messagePage my-xl">
+    <div class="content-box">
+        <div class="message">
+            <a class="backButton" href="{{request.GET.next}}">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+
+            <!-- Контейнер заголовка і кнопки -->
+            <div class="message__header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="message__subject" style="margin: 0;">{{ messageObj.subject }}</h2>
+                <a class="tag tag--pill tag--main settings__btn" href="{% url 'delete-message' messageObj.id %}">
+                    <i class="fa-solid fa-circle-xmark" style="margin-right: 5px;"></i>Delete
+                </a>
+            </div>
+
+            <a href="{% url 'user-profile' messageObj.sender.id %}" class="message__author">
+                {{ messageObj.sender.name }}
+            </a>
+            <p class="message__date">{{ messageObj.created }}</p>
+            <div class="message__body">{{ messageObj.body|linebreaksbr }}</div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

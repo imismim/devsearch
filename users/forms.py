@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .models import Profile, Skill
+from .models import Profile, Skill, Message
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -82,3 +82,16 @@ class SkillForm(ModelForm):
                  'id': 'formInput#text', 'placeholder':'Enter skill', 'valued': self.fields['name']})
         self.fields['description'].widget.attrs.update({'class': 'input input--text', 'type': 'text', 'name': 'text',
                  'id': 'formInput#text', 'placeholder': 'Enter description',})
+
+class MessageForm(ModelForm):
+    class Meta:
+        model = Message
+        fields = ['subject', 'body']
+    
+    def __init__(self, *args, **kwargs):
+        super(MessageForm, self).__init__(*args, **kwargs)
+
+        for key in self.fields.keys():
+            self.fields[key].widget.attrs.update(
+                {'class': 'input input--text', 'type': 'text', 'name': 'text',
+                 'id': 'formInput#text'})

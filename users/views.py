@@ -7,9 +7,10 @@ from django.contrib import messages
 from django.db.models import Q
 
 from .models import Profile, Skill
-from .forms import CustomUserCreationForm, ProfileForm, SkillForm
+from .forms import CustomUserCreationForm, ProfileForm, SkillForm, MessageForm
 from .utils import searchProfiles, paginateProfiles
 # Create your views here.
+
 
 @never_cache
 def loginUser(request):
@@ -42,6 +43,7 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
+
 @never_cache
 def registerUser(request):
     page = 'register'
@@ -71,7 +73,7 @@ def profiles(request):
     profiles, search_query = searchProfiles(request)
     custom_range, profiles = paginateProfiles(request, profiles, 3)
 
-    return render(request, 'users/profiles.html', {'profiles': profiles, 'idUser': idUser, 'search_query' : search_query, 'custom_range': custom_range})
+    return render(request, 'users/profiles.html', {'profiles': profiles, 'idUser': idUser, 'search_query': search_query, 'custom_range': custom_range})
 
 
 def userProfile(request, id):
@@ -152,5 +154,53 @@ def deleteSkill(request, id):
         messages.success(request, 'Skill was deleted successfully!')
         return redirect('account')
 
-    context = {'skill': skill}
-    return render(request, 'users/delete-skill.html', context)
+    context = {'nameObj': skill.name, 'typeObj': 'skill'}
+    return render(request, 'users/delete-template.html', context)
+
+
+@login_required(login_url='login')
+def inbox(request):
+    profile = request.user.profile
+    messageRequests = profile.messages.all()
+    unreadCount = messageRequests.filter(is_read=False).count()
+    context = {'messageRequests': messageRequests, 'unreadCount': unreadCount}
+    return render(request, 'users/inbox.html', context)
+
+
+@login_required(login_url='login')
+def viewMessage(request, id):
+    profile = request.user.profile
+    messageObj = profile.messages.get(id=id)
+    messageObj.is_read = True
+    messageObj.save()
+    context = {'messageObj': messageObj}
+    return render(request, 'users/message.html', context)
+
+
+@login_required(login_url='login')
+def createMessage(request, id):
+    recipient = Profile.objects.get(id=id)
+    form = MessageForm()
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user.profile
+            message.recipient = recipient
+            message.save()
+            messages.success(request, 'Your message was successfully sent!')
+            return redirect('user-profile', id=recipient.id)
+        
+    context = {'recipient': recipient, 'form': form}
+    return render(request, 'users/message-form.html', context)
+
+@login_required(login_url='login')
+def deleteMessage(request, id):
+    profile = request.user.profile
+    messageObj = profile.messages.get(id=id)
+    if request.method == 'POST':
+        messageObj.delete()
+        messages.success(request, 'Message was deleted successfully!')
+        return redirect('inbox')
+    context = {'nameObj': messageObj.subject, 'typeObj': 'message'}
+    return render(request, 'delete-template.html', context)
