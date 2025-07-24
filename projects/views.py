@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-from .models import Project, Review
+from .models import Project, Review, Tag
 from .forms import ProjectForm, ReviewForm
 from .utils import searchProjects, paginateProjects
 # Create your views here.
-
+from django.http import JsonResponse
 
 def projects(request):
     projects, search_query = searchProjects(request)
@@ -42,11 +42,19 @@ def createProject(request):
     form = ProjectForm()
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES)
+        newTags = request.POST.get('newTags').split()
         if form.is_valid():
             project = form.save(commit=False)
             project.owner = profile
             project.save()
+            
+            for tag in newTags:
+                tag = tag.strip().title()
+                tag, created = Tag.objects.get_or_create(name=tag)
+                print(tag.name)
+                project.tags.add(tag)
             form.save_m2m()
+            
             return redirect('account')
 
     return render(request, "projects/project-form.html", {"form": form})
@@ -59,9 +67,14 @@ def updateProject(request, id):
     form = ProjectForm(instance=project)
 
     if request.method == 'POST':
+        newTags = request.POST.get('newTags').split()
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
-            form.save()
+            project = form.save()
+            for tag in newTags:
+                tag = tag.strip().title()
+                tag, created = Tag.objects.get_or_create(name=tag)
+                project.tags.add(tag)
             return redirect('account')
 
     return render(request, "projects/project-form.html", {"form": form})
@@ -82,7 +95,6 @@ def deleteProject(request, id):
 def deleteComment(request, id):
     comment = Review.objects.get(id=id)
     if request.method == 'POST':
-        form = ReviewForm()
         project = comment.project
         comment.delete()
         project.getVoteCount
