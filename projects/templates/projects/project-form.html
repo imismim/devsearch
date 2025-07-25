@@ -5,7 +5,7 @@
 <main class="formPage my-xl">
     <div class="content-box">
         <div class="formWrapper">
-            <a class="backButton" href="#"><i class="fa-solid fa-arrow-left"></i></a>
+            <a class="backButton" href="{% url 'account' %}"><i class="fa-solid fa-arrow-left"></i></a>
             <br>
 
             <form class="form" method="POST" enctype="multipart/form-data">
@@ -17,10 +17,40 @@
                     {{ field }}
                 </div>
                 {% endfor %}
-                <input class="input input--text" id="formInput#text" type="text" name="newTags" placeholder="Python Django HTML ..." />
+
+                <label for="formInput#text">Tags<br></label>
+                {% for tag in project.tags.all %}
+                <div class="tag tag--pill tag--main" >{{tag}}
+                    <i class="fa-solid fa-circle-xmark" style="margin-left: 5px;" data-tag="{{tag.id}}" data-project="{{project.id}}"></i>
+                </div>
+                {% endfor %}
+
+                <input class="input input--text" id="formInput#text" type="text" name="newTags"
+                    placeholder="Python Django HTML ..." />
                 <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
             </form>
         </div>
     </div>
 </main>
+<script>
+    let x = document.getElementsByClassName('fa-solid fa-circle-xmark')
+    for (i = 0; x.length > i; i++) {
+        x[i].addEventListener('click', (e) => {
+            let tag = e.target.dataset.tag
+            let project = e.target.dataset.project
+
+            fetch('http://127.0.0.1:8000/api/remove-tag/', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 'project': project, 'tag': tag })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    e.target.closest('.tag').remove();
+                })
+        })
+    }
+</script>
 {% endblock %}

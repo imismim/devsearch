@@ -7,16 +7,11 @@ class ProjectForm(ModelForm):
     class Meta:
         model = Project
         fields = ['title', 'description', 'featured_image',
-                  'demo_link', 'source_link', 'tags']
-        widgets = {
-            'tags':  forms.CheckboxSelectMultiple(),
-        }
+                  'demo_link', 'source_link']
+
         
     def __init__(self, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
-        if self.instance:
-            self.fields['tags'].queryset = self.instance.tags.all()
-        
         self.fields['title'].widget.attrs.update({'class': 'input'})
         self.fields['description'].widget.attrs.update({'class': 'input'})
         self.fields['demo_link'].widget.attrs.update({'class': 'input'})

@@ -8,12 +8,14 @@ from .utils import searchProjects, paginateProjects
 # Create your views here.
 from django.http import JsonResponse
 
+
 def projects(request):
     projects, search_query = searchProjects(request)
     idUser = request.user.profile.id if request.user.is_authenticated else None
-    
+
     custom_range, projects = paginateProjects(request, projects, 3)
-    context = {"projects": projects, 'idUser': idUser, 'search_query': search_query, 'custom_range': custom_range}
+    context = {"projects": projects, 'idUser': idUser,
+               'search_query': search_query, 'custom_range': custom_range}
     return render(request, "projects/projects.html", context)
 
 
@@ -21,7 +23,7 @@ def project(request, id):
     idUser = request.user.profile.id if request.user.is_authenticated else None
 
     project = Project.objects.get(id=id)
-    
+
     form = ReviewForm()
     if request.method == 'POST':
         form = ReviewForm(request.POST)
@@ -47,14 +49,14 @@ def createProject(request):
             project = form.save(commit=False)
             project.owner = profile
             project.save()
-            
+
             for tag in newTags:
                 tag = tag.strip().title()
                 tag, created = Tag.objects.get_or_create(name=tag)
                 print(tag.name)
                 project.tags.add(tag)
             form.save_m2m()
-            
+
             return redirect('account')
 
     return render(request, "projects/project-form.html", {"form": form})
@@ -77,7 +79,7 @@ def updateProject(request, id):
                 project.tags.add(tag)
             return redirect('account')
 
-    return render(request, "projects/project-form.html", {"form": form})
+    return render(request, "projects/project-form.html", {"form": form, "project": project})
 
 
 @login_required(login_url='login')
@@ -91,6 +93,7 @@ def deleteProject(request, id):
     context = {'nameObj': project.title, 'typeObj': 'project'}
     return render(request, 'delete-template.html', context)
 
+
 @login_required(login_url='login')
 def deleteComment(request, id):
     comment = Review.objects.get(id=id)
@@ -100,6 +103,6 @@ def deleteComment(request, id):
         project.getVoteCount
 
         return redirect('project', id=project.id)
-    
+
     context = {'nameObj': comment.body[:40] + '...', 'typeObj': 'comment'}
     return render(request, 'delete-template.html', context)
