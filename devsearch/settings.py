@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 
     'projects.apps.ProjectsConfig',
     'users.apps.UsersConfig',
-    
+
     'rest_framework',
     "corsheaders"
 ]
@@ -94,9 +94,9 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-MIDDLEWARE = [ 
+MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
