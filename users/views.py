@@ -155,7 +155,7 @@ def deleteSkill(request, id):
         return redirect('account')
 
     context = {'nameObj': skill.name, 'typeObj': 'skill'}
-    return render(request, 'users/delete-template.html', context)
+    return render(request, 'delete-template.html', context)
 
 
 @login_required(login_url='login')
