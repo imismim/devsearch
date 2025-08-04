@@ -28,6 +28,10 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user.username)
     
+    @property
+    def getCountUnread(self):
+        countMessages = self.messages.filter(is_read=False).count()
+        return f' ({countMessages})' if countMessages != 0 else ''
     class Meta:
         ordering = ['-created']
 
